@@ -3,7 +3,9 @@ let express     = require('express'),
     bodyParser  = require('body-parser'),
     mongoose    = require('mongoose'),
     jwt = require('jsonwebtoken'),
-    jsonParser  = bodyParser.json(),
+    bcrypt = require('bcrypt'),
+    jsonParser  = bodyParser.json(), 
+    { UserList } = require('./model'),
     { DATABASE_URL, PORT } = require('./config');
 
 let server;
@@ -16,6 +18,117 @@ app.use(morgan("dev"));
 /* 
 ////////////////////// ENDPOINTS AQUI //////////////////////
 */
+//Endpoint for register
+app.post('/api/register', jsonParser, ( req, res ) => {
+  let nombre = req.body.nombre;
+  let apellido = req.body.apellido;
+  let user = req.body.usuario;
+  let correo = req.body.correo;
+  let password = req.body.password;
+  let confirmPassword = req.body.confirmPassword;
+  let fecha = req.body.fechaNac;
+  let pais = req.body.pais;
+
+  if (!nombre || nombre == ""){
+    res.statusMessage = "Nombre no proporcionado";
+    return res.status(402).send();
+  }
+
+  if ( !apellido || apellido == ""){
+    res.statusMessage = "Apellido no proporcionado";
+    return res.status(402).send();
+  }
+  if (!user || user == ""){
+    res.statusMessage = "Usuario no proporcionado";
+    return res.status(402).send();
+  }
+
+  if ( !correo || correo == ""){
+    res.statusMessage = "Correo no proporcionado";
+    return res.status(402).send();
+  }
+
+  if ( !password || password == ""){
+    res.statusMessage = "Contraseña no proporcionada";
+    return res.status(402).send();
+  }
+
+  if ( !confirmPassword || confirmPassword == ""){
+    res.statusMessage = "Contraseña de confirmacion no proporcionada";
+    return res.status(402).send();
+  }
+
+  if (!fecha || fecha == ""){
+    res.statusMessage = "Fecha no proporcionada";
+    return res.status(402).send();
+  }
+
+  if ( !pais || pais == ""){
+    res.statusMessage = "Pais no proporcionado";
+    return res.status(402).send();
+  }
+
+  if( password != confirmPassword){
+    res.statusMessage = "Contraseña no concuerda";
+    return res.status(402).send();
+  }
+
+  //Valida si el nombre de usuario ya esta en la BD
+  UserList.findUserByUsername()
+    .then( result => {
+      //En caso de que sí, manda error
+      if ( result.length > 0 ){
+        res.statusMessage = "Nombre de usuario no disponible";
+        return res.status(406).send();
+      }
+      else{
+        
+
+      }
+    })
+    .catch( error => {
+      return Error ( error );
+    });
+
+
+});
+
+//Endpoint for login
+app.post('/api/login', jsonParser, ( req, res ) => {
+  let user = req.body.usuario;
+  let password = req.body.password;
+
+  if (!user || user == ""){
+    res.statusMessage = "Usuario no proporcionado";
+    return res.status(402)
+  }
+
+  if ( !password || password == ""){
+    res.statusMessage = "Contraseña no proporcionado";
+    return res.status(402)
+  }
+
+  UserList.findUserByUsername()
+    .then( result => {
+      if(result){
+
+      }
+    })
+    .catch( error => {
+      return Error( error );
+    });
+
+
+
+
+
+
+
+
+  
+
+
+});
 
 function runServer(port, databaseUrl) {
     return new Promise((resolve, reject) => {
