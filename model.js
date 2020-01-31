@@ -44,8 +44,9 @@ let User = mongoose.model('users', usersCollection);
 
 //Querys
 let UserList = {
+    //Function to validate if the username is already in the DB
     findUserByUsername : function( username ){
-        return User.find({_id: username})
+        return User.find({usuario: username})
             .then( user => {
                 return user;
             })
@@ -53,6 +54,13 @@ let UserList = {
                 return Error ( error );
             });
     },
+
+    //function to encrypt password 
+    encryptPasword : function( pass ){
+        let password = pass;
+        bcrypt.hash(password, 10)
+
+    }
 
         
 
