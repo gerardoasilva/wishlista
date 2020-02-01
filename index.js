@@ -78,11 +78,50 @@ app.post('/api/register', jsonParser, ( req, res ) => {
     .then( result => {
       //En caso de que sí, manda error
       if ( result.length > 0 ){
+        console.log("findUser");
         res.statusMessage = "Nombre de usuario no disponible";
         return res.status(406).send();
       }
       else{
-        
+        console.log("NOt findUser");
+
+        let nuevoUsuario = {
+          nombre: req.body.nombre,
+          apellido: req.body.apellido,
+          usuario: user,
+          correo: correo,
+          fechaNac: fecha,
+          pais: pais
+        };
+
+        //Encriptar password y crear usuario en BD
+        bcrypt.hash(password, 10)
+          .then( hash => {
+            console.log(" Hash");
+            //Guardar contrase;a encriptada en el nuevo usuario
+           /* nuevoUsuario = {
+              password: hash
+            }; */
+            nuevoUsuario.password = hash;
+            console.log(hash);
+            console.log(nuevoUsuario.password)
+            //Guarda usuario en BD 
+            UserList.createUser( nuevoUsuario )
+              .then ( usuario => {
+                console.log("User");
+                res.statusMessage = "Usuario agregado a BD"
+                return res.status(200).json(nuevoUsuario);
+              })
+              .catch( error => {
+                console.log("NOt User");
+                throw Error (error);
+            });
+
+          })
+          .catch( err => {
+            console.log("NOt HAsh");
+            throw Error (error);
+          });
 
       }
     })
@@ -117,12 +156,6 @@ app.post('/api/login', jsonParser, ( req, res ) => {
     .catch( error => {
       return Error( error );
     });
-
-
-
-
-
-
 
 
   

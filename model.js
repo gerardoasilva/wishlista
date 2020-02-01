@@ -13,7 +13,8 @@ let usersCollection = mongoose.Schema({
     },
     usuario: {
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
     correo: {
         type: String,
@@ -23,12 +24,12 @@ let usersCollection = mongoose.Schema({
         type: String,
         required: true
     },
-    confirmPassword: {
+  /*  confirmPassword: {
         type: String,
         required: true
-    },
+    },*/
     fechaNac: {
-        type: Date,
+        type: String,
         required: true
     },
     pais: {
@@ -54,15 +55,19 @@ let UserList = {
                 return Error ( error );
             });
     },
-
-    //function to encrypt password 
-    encryptPasword : function( pass ){
-        let password = pass;
-        bcrypt.hash(password, 10)
-
+    createUser : function(nuevoUsuario){
+        return User.create( nuevoUsuario )
+            .then ( usuario => {
+                return usuario;
+            })
+            .catch ( error => {
+                throw Error ( error );
+            });
     }
 
-        
+    //function to encrypt password 
+  /*  encryptPasword : function( pass, num ){
+         return bcrypt.hash(password, 10)*/
 
 
 
