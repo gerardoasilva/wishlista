@@ -4,7 +4,14 @@ let express     = require('express'),
     mongoose    = require('mongoose'),
     jwt = require('jsonwebtoken'),
     jsonParser  = bodyParser.json(),
+    { OperationHelper } = require('apac'),
     { DATABASE_URL, PORT } = require('./config');
+
+const opHelper = new OperationHelper({
+  awsId:     '[YOUR AWS ID HERE]',
+  awsSecret: '[YOUR AWS SECRET HERE]',
+  assocId:   '[YOUR ASSOCIATE TAG HERE]'
+});
 
 let server;
 
