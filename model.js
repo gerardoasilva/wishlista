@@ -125,7 +125,7 @@ let Item = mongoose.model('items', wishlistCollection);
 let UserList = {
     //Function to validate if the username is already in the DB
     findUsername : function( userN ){
-        return User.find({username: userN})
+        return User.findOne({username: userN})
             .then( function (user) {
                 return user;
             })
@@ -151,26 +151,19 @@ let UserList = {
             .catch ( error => {
                 throw Error ( error );
             });
-    },
-    getUserPass : function( userN){
-        return User.findOne({username: userN})
-            .then( function(user) {
-                return user.password;
-            })
-            .catch ( error => {
-                throw Error ( error );
-            });
-    }
+    };
 
-    //function to encrypt password 
-  /*  encryptPasword : function( pass, num ){
-         return bcrypt.hash(password, 10)*/
+// let WishlistList = {};
+
+// let ItemsList = {};
+
+
 
 
 
 }
 
 module.exports = {
-    UserList
+    UserList, WishlistList, ItemsList
 }
 
