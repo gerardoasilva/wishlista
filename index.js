@@ -74,7 +74,7 @@ app.post('/api/register', jsonParser, ( req, res ) => {
   }
 
   //Valida si el nombre de usuario ya esta en la BD
-  UserList.findUserByUsername()
+  UserList.findUsername(user)
     .then( result => {
       //En caso de que sí, manda error
       if ( result.length > 0 ){
@@ -85,43 +85,62 @@ app.post('/api/register', jsonParser, ( req, res ) => {
       else{
         console.log("NOt findUser");
 
-        let nuevoUsuario = {
-          nombre: req.body.nombre,
-          apellido: req.body.apellido,
-          usuario: user,
-          correo: correo,
-          fechaNac: fecha,
-          pais: pais
-        };
+        UserList.findEmail(correo)
+          .then( result => {
+            //
+            if(result.length > 0){
+              console.log("findEmail");
+              res.statusMessage = "Correo no disponible";
+              return res.status(406).send();
+            }
 
-        //Encriptar password y crear usuario en BD
-        bcrypt.hash(password, 10)
-          .then( hash => {
-            console.log(" Hash");
-            //Guardar contrase;a encriptada en el nuevo usuario
-           /* nuevoUsuario = {
-              password: hash
-            }; */
-            nuevoUsuario.password = hash;
-            console.log(hash);
-            console.log(nuevoUsuario.password)
-            //Guarda usuario en BD 
-            UserList.createUser( nuevoUsuario )
-              .then ( usuario => {
-                console.log("User");
-                res.statusMessage = "Usuario agregado a BD"
-                return res.status(200).json(nuevoUsuario);
-              })
-              .catch( error => {
-                console.log("NOt User");
-                throw Error (error);
-            });
+            else{
+
+              let nuevoUsuario = {
+                nombre: nombre,
+                apellido: apellido,
+                usuario: user,
+                correo: correo,
+                fechaNac: fecha,
+                pais: pais
+              };
+      
+              //Encriptar password y crear usuario en BD
+              bcrypt.hash(password, 10)
+                .then( hash => {
+                  console.log(" Hash");
+                  //Guardar contrase;a encriptada en el nuevo usuario
+
+                  nuevoUsuario.password = hash;
+                  console.log(hash);
+
+                  //Guarda usuario en BD 
+                  UserList.createUser( nuevoUsuario )
+                    .then ( usuario => {
+                      console.log("User");
+                      res.statusMessage = "Usuario agregado a BD";
+                      return res.status(200).json(nuevoUsuario);
+                    })
+                    .catch( error => {
+                      console.log("NOt User");
+                      throw Error (error);
+                  });
+      
+                })
+                .catch( err => {
+                  console.log("NOt HAsh");
+                  throw Error (error);
+                });
+
+            }
 
           })
-          .catch( err => {
-            console.log("NOt HAsh");
-            throw Error (error);
+
+          .catch( error => {
+            console.log("Error BD");
+            return Error ( error );
           });
+   
 
       }
     })
@@ -139,27 +158,35 @@ app.post('/api/login', jsonParser, ( req, res ) => {
 
   if (!user || user == ""){
     res.statusMessage = "Usuario no proporcionado";
-    return res.status(402)
+    return res.status(402);
   }
 
   if ( !password || password == ""){
     res.statusMessage = "Contraseña no proporcionado";
-    return res.status(402)
+    return res.status(402);
   }
 
-  UserList.findUserByUsername()
-    .then( result => {
-      if(result){
+  //Verifica que el usuario exista y regresa su pass de la BD
+  UserList.getUserPass(user)
+    .then( function(password) {
+      if(password){
+        let hash = password;
+        console.log(hash);
+        console.log(bcrypt.compare(password, hash));
+        return res.status(200).send();
+       // let result = bcrypt.compare(password, hash)
+       // console.log()
+      }
+      else{
+        console.log("errir");
+        res.statusMessage = "Usuario no encontrado";
+        return res.status(404)
 
       }
     })
     .catch( error => {
       return Error( error );
-    });
-
-
-  
-
+    }); 
 
 });
 
