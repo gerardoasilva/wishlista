@@ -19,7 +19,7 @@ app.use(morgan("dev"));
 ////////////////////// ENDPOINTS AQUI //////////////////////
 */
 //Endpoint for register
-app.post('/api/register', jsonParser, ( req, res ) => {
+app.post('/register', jsonParser, ( req, res ) => {
   let fName = req.body.fName;
   let lName = req.body.lName;
   let username = req.body.username;
@@ -77,7 +77,7 @@ app.post('/api/register', jsonParser, ( req, res ) => {
   UserList.findUsername(username)
     .then( result => {
       //En caso de que sí, manda error
-      if ( result.length > 0 ){
+      if ( result ){
         console.log("findUser");
         res.statusMessage = "Nombre de usuario no disponible";
         return res.status(406).send();
@@ -152,35 +152,54 @@ app.post('/api/register', jsonParser, ( req, res ) => {
 });
 
 //Endpoint for login
-app.post('/api/login', jsonParser, ( req, res ) => {
+app.post('/login', jsonParser, ( req, res ) => {
   let username = req.body.username;
   let password = req.body.password;
 
   if (!username || username == ""){
     res.statusMessage = "Usuario no proporcionado";
-    return res.status(402);
+    return res.status(402).send();
   }
 
   if ( !password || password == ""){
     res.statusMessage = "Contraseña no proporcionado";
-    return res.status(402);
+    return res.status(402).send();
   }
 
   //Verifica que el usuario exista y regresa su pass de la BD
-  UserList.getUserPass(username)
-    .then( function(password) {
-      if(password){
-        let hash = password;
-        console.log(hash);
-        console.log(bcrypt.compare(password, hash));
-        return res.status(200).send();
-       // let result = bcrypt.compare(password, hash)
-       // console.log()
+  UserList.findUsername(username)
+    .then( user => {
+      if(user){
+        let hash = user.password;
+
+        bcrypt.compare(password, hash)
+          .then( result => {
+            if(result){
+
+              let data = {
+                username
+            };
+              let token = jwt.sign(data, 'secret', {
+                expiresIn: 60 * 10
+              });
+
+              return res.status(200).json({token});
+            }
+            else{
+              console.log("Contraseña incorrecta");
+              res.statusMessage = "Contraseña incorrecta";
+              return res.status(402).send();
+            }
+          })
+          .catch( error => {
+            throw Error( error );
+          })
+
       }
       else{
-        console.log("errir");
+        console.log("error");
         res.statusMessage = "Usuario no encontrado";
-        return res.status(404)
+        return res.status(404).send();
 
       }
     })
