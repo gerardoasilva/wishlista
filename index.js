@@ -209,6 +209,28 @@ app.post('/login', jsonParser, ( req, res ) => {
 
 });
 
+//Ir a "Authorization" y seleccionar "Bearer token" y poner el token
+app.get('/validate', (req, res) =>{
+  let token = req.headers.authorization;
+  token = token.replace('Bearer ','');
+  jwt.verify( token, 'secret', (err, user) =>{
+      if ( err ){
+          res.statusMessage = "Token no valido";
+          return res.status(400).send();  
+      }
+
+      console.log(user);
+      return res.status(200).json({ message : "Exito"});
+  });
+  //console.log(req.headers)
+
+  // En el success del fetch del login guardar el token (usar localStorage).
+  // localStorage.setItem('token', 'vIJBKJbkfe...');
+  // localStorage.getItem('token');
+
+});
+
+
 function runServer(port, databaseUrl) {
     return new Promise((resolve, reject) => {
       mongoose.connect(databaseUrl, response => {
