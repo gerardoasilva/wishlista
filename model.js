@@ -3,37 +3,42 @@ let mongoose = require( 'mongoose');
 mongoose.Promise = global.Promise;
 
 let usersCollection = mongoose.Schema({
-    nombre: {
+    fName: {
         type: String,
         required: true
     },
-    apellido: {
+    lName: {
         type: String,
         required: true
     },
-    usuario: {
+    username: {
         type: String,
         required: true,
+        lowercase: true,
         unique: true
     },
-    correo: {
+    email: {
         type: String,
         required: true,
+        lowercase: true,
         unique: true
     },
     password: {
         type: String,
+        select: false,
         required: true
     },
-  /*  confirmPassword: {
-        type: String,
-        required: true
-    },*/
-    fechaNac: {
+    bDate: {
         type: String,
         required: true
     },
-    pais: {
+    signupDate: {
+        type: Date,
+        default: Date.now,
+        required: true
+    },
+
+    country: {
         type: String,
         required: true
     },
@@ -47,8 +52,8 @@ let User = mongoose.model('users', usersCollection);
 //Querys
 let UserList = {
     //Function to validate if the username is already in the DB
-    findUsername : function( username ){
-        return User.find({usuario: username})
+    findUsername : function( userN ){
+        return User.find({username: userN})
             .then( function (user) {
                 return user;
             })
@@ -56,8 +61,8 @@ let UserList = {
                 return Error ( error );
             });
     },
-    findEmail : function( correo ){
-        return User.find({correo: correo})
+    findEmail : function( userEmail ){
+        return User.find({email: userEmail})
             .then( function (user) {
                 return user;
             })
@@ -75,8 +80,8 @@ let UserList = {
                 throw Error ( error );
             });
     },
-    getUserPass : function( username){
-        return User.findOne({usuario: username})
+    getUserPass : function( userN){
+        return User.findOne({username: userN})
             .then( function(user) {
                 return user.password;
             })
