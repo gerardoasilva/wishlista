@@ -20,30 +20,30 @@ app.use(morgan("dev"));
 */
 //Endpoint for register
 app.post('/api/register', jsonParser, ( req, res ) => {
-  let nombre = req.body.nombre;
-  let apellido = req.body.apellido;
-  let user = req.body.usuario;
-  let correo = req.body.correo;
+  let fName = req.body.fName;
+  let lName = req.body.lName;
+  let username = req.body.username;
+  let email = req.body.email;
   let password = req.body.password;
   let confirmPassword = req.body.confirmPassword;
-  let fecha = req.body.fechaNac;
-  let pais = req.body.pais;
+  let bDate = req.body.bDate;
+  let country = req.body.country;
 
-  if (!nombre || nombre == ""){
+  if (!fName || fName == ""){
     res.statusMessage = "Nombre no proporcionado";
     return res.status(402).send();
   }
 
-  if ( !apellido || apellido == ""){
+  if ( !lName || lName == ""){
     res.statusMessage = "Apellido no proporcionado";
     return res.status(402).send();
   }
-  if (!user || user == ""){
+  if (!username || username == ""){
     res.statusMessage = "Usuario no proporcionado";
     return res.status(402).send();
   }
 
-  if ( !correo || correo == ""){
+  if ( !email || email == ""){
     res.statusMessage = "Correo no proporcionado";
     return res.status(402).send();
   }
@@ -58,12 +58,12 @@ app.post('/api/register', jsonParser, ( req, res ) => {
     return res.status(402).send();
   }
 
-  if (!fecha || fecha == ""){
+  if (!bDate || bDate == ""){
     res.statusMessage = "Fecha no proporcionada";
     return res.status(402).send();
   }
 
-  if ( !pais || pais == ""){
+  if ( !country || country == ""){
     res.statusMessage = "Pais no proporcionado";
     return res.status(402).send();
   }
@@ -74,7 +74,7 @@ app.post('/api/register', jsonParser, ( req, res ) => {
   }
 
   //Valida si el nombre de usuario ya esta en la BD
-  UserList.findUsername(user)
+  UserList.findUsername(username)
     .then( result => {
       //En caso de que sí, manda error
       if ( result.length > 0 ){
@@ -85,7 +85,7 @@ app.post('/api/register', jsonParser, ( req, res ) => {
       else{
         console.log("NOt findUser");
 
-        UserList.findEmail(correo)
+        UserList.findEmail(email)
           .then( result => {
             //
             if(result.length > 0){
@@ -97,12 +97,12 @@ app.post('/api/register', jsonParser, ( req, res ) => {
             else{
 
               let nuevoUsuario = {
-                nombre: nombre,
-                apellido: apellido,
-                usuario: user,
-                correo: correo,
-                fechaNac: fecha,
-                pais: pais
+                fName: fName,
+                lName: lName,
+                username: username,
+                email: email,
+                bDate: bDate,
+                country: country
               };
       
               //Encriptar password y crear usuario en BD
@@ -137,7 +137,7 @@ app.post('/api/register', jsonParser, ( req, res ) => {
           })
 
           .catch( error => {
-            console.log("Error BD");
+            console.log("Error bd");
             return Error ( error );
           });
    
@@ -153,10 +153,10 @@ app.post('/api/register', jsonParser, ( req, res ) => {
 
 //Endpoint for login
 app.post('/api/login', jsonParser, ( req, res ) => {
-  let user = req.body.usuario;
+  let username = req.body.username;
   let password = req.body.password;
 
-  if (!user || user == ""){
+  if (!username || username == ""){
     res.statusMessage = "Usuario no proporcionado";
     return res.status(402);
   }
@@ -167,7 +167,7 @@ app.post('/api/login', jsonParser, ( req, res ) => {
   }
 
   //Verifica que el usuario exista y regresa su pass de la BD
-  UserList.getUserPass(user)
+  UserList.getUserPass(username)
     .then( function(password) {
       if(password){
         let hash = password;
