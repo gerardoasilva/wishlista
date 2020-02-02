@@ -18,7 +18,8 @@ let usersCollection = mongoose.Schema({
     },
     correo: {
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
     password: {
         type: String,
@@ -46,19 +47,38 @@ let User = mongoose.model('users', usersCollection);
 //Querys
 let UserList = {
     //Function to validate if the username is already in the DB
-    findUserByUsername : function( username ){
+    findUsername : function( username ){
         return User.find({usuario: username})
-            .then( user => {
+            .then( function (user) {
                 return user;
             })
             .catch ( error => {
                 return Error ( error );
             });
     },
+    findEmail : function( correo ){
+        return User.find({correo: correo})
+            .then( function (user) {
+                return user;
+            })
+            .catch ( error => {
+                return Error ( error );
+            });
+    },
+
     createUser : function(nuevoUsuario){
         return User.create( nuevoUsuario )
             .then ( usuario => {
                 return usuario;
+            })
+            .catch ( error => {
+                throw Error ( error );
+            });
+    },
+    getUserPass : function( username){
+        return User.findOne({usuario: username})
+            .then( function(user) {
+                return user.password;
             })
             .catch ( error => {
                 throw Error ( error );
