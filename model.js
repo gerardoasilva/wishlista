@@ -2,7 +2,7 @@ let mongoose = require( 'mongoose');
 
 mongoose.Promise = global.Promise;
 
-let usersCollection = mongoose.Schema({
+let userCollection = mongoose.Schema({
     fName: {
         type: String,
         required: true
@@ -25,7 +25,6 @@ let usersCollection = mongoose.Schema({
     },
     password: {
         type: String,
-        select: false,
         required: true
     },
     bDate: {
@@ -37,19 +36,92 @@ let usersCollection = mongoose.Schema({
         default: Date.now,
         required: true
     },
+    wishlists: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Wishlist"
+        }
+    ],
+    friends: [
+        user: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User"
+        },
+        status: Number,
+        enums: [
+            0, // 'Not friend'
+            1, // 'requested'
+            2, // 'pendig'
+            3  // 'friends'
+        ]
+    ]
+    
+});
 
-    country: {
+let wishlistCollection = mongoose.Schema({
+    title: {
+        type: String, 
+        required: true
+    },
+    description: {
+        type: String,
+    },
+    privacy: {
+        type: Boolean,
+        default: "false",
+    },
+    password: {
+        type: String
+    },
+    creationDate: {
+        type: Date,
+        default: Date.now,
+        required: true
+    },
+    wishes: [
+        {
+            type: mongoose.Schema.Types.ObjectId, ref: "Item"
+        }
+    ]
+
+});
+
+let itemCollection = mongoose.Schema({
+    title: {
         type: String,
         required: true
     },
-    wishlist: {
+    productImage: {
         type: String
+    },
+    priority: {
+        type: Number,
+        required: true
+    },
+    notes: {
+        type: String
+    },
+    link: {
+        type: String
+    },
+    reserved: {
+        type: Boolean,
+        default: "false",
+        required: true
+    },
+    creationDate: {
+        type: Date,
+        default: Date.now,
+        required: true
     }
+
 });
 
 let User = mongoose.model('users', usersCollection);
+let Wishlist = mongoose.model('wishlists', wishlistCollection);
+let Item = mongoose.model('items', wishlistCollection);
 
-//Querys
+// Querys
 let UserList = {
     //Function to validate if the username is already in the DB
     findUsername : function( userN ){

@@ -20,7 +20,7 @@ app.use(morgan("dev"));
 ////////////////////// ENDPOINTS AQUI //////////////////////
 */
 //Endpoint for register
-app.post('/api/register', jsonParser, ( req, res ) => {
+app.post('/register', jsonParser, ( req, res ) => {
   let fName = req.body.fName;
   let lName = req.body.lName;
   let username = req.body.username;
@@ -153,7 +153,7 @@ app.post('/api/register', jsonParser, ( req, res ) => {
 });
 
 //Endpoint for login
-app.post('/api/login', jsonParser, ( req, res ) => {
+app.post('/login', jsonParser, ( req, res ) => {
   let username = req.body.username;
   let password = req.body.password;
 
@@ -190,6 +190,13 @@ app.post('/api/login', jsonParser, ( req, res ) => {
     }); 
 
 });
+
+
+
+
+
+
+/* Server & Database config */
 
 function runServer(port, databaseUrl) {
     return new Promise((resolve, reject) => {
