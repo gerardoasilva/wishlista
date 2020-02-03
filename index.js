@@ -1,19 +1,39 @@
-let express = require("express"),
-  morgan = require("morgan"),
-  bodyParser = require("body-parser"),
-  mongoose = require("mongoose"),
-  jwt = require("jsonwebtoken"),
-  bcrypt = require("bcrypt"),
-  jsonParser = bodyParser.json(),
-  { UserList } = require("./model"),
-  { DATABASE_URL, PORT } = require("./config");
-
-let server;
-
-let app = express();
+let express                 = require("express"),
+    morgan                  = require("morgan"),
+    bodyParser              = require("body-parser"),
+    mongoose                = require("mongoose"),
+    jwt                     = require("jsonwebtoken"),
+    bcrypt                  = require("bcrypt"),
+    jsonParser              = bodyParser.json(),
+    { UserList }            = require("./model"),
+    { DATABASE_URL, PORT }  = require("./config"),
+    app                     = express(),
+    server;
 
 app.use(express.static("public"));
 app.use(morgan("dev"));
+
+
+
+/////////////////////////////////////////////////////////////////
+// Token validation
+app.get("/validate", (req, res) => {
+  let token = req.headers.authorization;
+  token = token.replace("Bearer ", "");
+
+  jwt.verify(token, "secret", (err, user) => {
+    if (err) {
+      res.statusMessage = "Token no valido";
+      return res.status(400).send();
+    }
+    console.log(user);
+    res.statusMessage = "Token válido";
+    return res.status(200).send();
+  });
+});
+/////////////////////////////////////////////////////////////////
+
+
 
 /* 
 ////////////////////// ENDPOINTS AQUI //////////////////////
@@ -34,87 +54,78 @@ app.get("/users", jsonParser, (req, res) => {
     });
 });
 
-                                ///////////////////////
-                                ///// CREATE USER /////
-                                ///////////////////////
-
+                                ///////////////////////////
+                                /////   CREATE USER   /////
+                                ///////////////////////////
 app.post('/register', jsonParser, (req, res) => {
-  let username = req.body.username;
-  let fName = req.body.fName;
-  let lName = req.body.lName;
-  let email = req.body.email;
-  let password = req.body.password;
-  let confirmPassword = req.body.confirmPassword;
-  let bDate = req.body.bDate;
-  let country = req.body.country;
+  let { username, fName, lName, email, password, confirmPassword, bDate, country } = req.body;
 
   if (!fName || fName == "") {
     res.statusMessage = "Nombre no proporcionado";
-    return res.status(402).send();
+    return res.status(406).send();
   }
 
   if (!lName || lName == "") {
     res.statusMessage = "Apellido no proporcionado";
-    return res.status(402).send();
+    return res.status(406).send();
   }
   if (!username || username == "") {
     res.statusMessage = "Usuario no proporcionado";
-    return res.status(402).send();
+    return res.status(406).send();
   }
 
   if (!email || email == "") {
-    res.statusMessage = "Correo no proporcionado";
-    return res.status(402).send();
+    res.statusMessage = "Correo electrónico no proporcionado";
+    return res.status(406).send();
   }
 
   if (!password || password == "") {
     res.statusMessage = "Contraseña no proporcionada";
-    return res.status(402).send();
+    return res.status(406).send();
   }
 
   if (!confirmPassword || confirmPassword == "") {
-    res.statusMessage = "Contraseña de confirmacion no proporcionada";
-    return res.status(402).send();
+    res.statusMessage = "Contraseña de confirmación no proporcionada";
+    return res.status(406).send();
   }
 
   if (!bDate || bDate == "") {
-    res.statusMessage = "Fecha no proporcionada";
-    return res.status(402).send();
+    res.statusMessage = "Fecha de nacimiento no proporcionada";
+    return res.status(406).send();
   }
 
   if (!country || country == "") {
-    res.statusMessage = "Pais no proporcionado";
-    return res.status(402).send();
+    res.statusMessage = "País no proporcionado";
+    return res.status(406).send();
   }
 
   if (password != confirmPassword) {
-    res.statusMessage = "Contraseña no concuerda";
-    return res.status(402).send();
+    res.statusMessage = "Contraseñas no coinciden";
+    return res.status(406).send();
   }
 
-  // Validate if username is repeated
+  // Validate if username is unique
   UserList.findByUsername(username)
     .then(result => {
       // User repeated
       if (result) {
         console.log("foundUser");
         res.statusMessage = "Nombre de usuario no disponible";
-        return res.status(406).send();
+        return res.status(409).send();
       }
-      // User not repeated
+      // Unique user
       else {
         console.log("Not findUser");
-
-        // Validate if email is repeated
+        // Validate if email is unique
         UserList.findByEmail(email)
           .then(result => {
             // Email repeated
             if (result) {
               console.log("findByEmail");
-              res.statusMessage = "Correo no disponible";
+              res.statusMessage = "Correo electrónico no disponible, ya existe una cuenta con este correo electrónico";
               return res.status(406).send();
             }
-            // Email not repeated
+            // Unique email
             else {
               let newUser = {
                 username: username,
@@ -126,10 +137,9 @@ app.post('/register', jsonParser, (req, res) => {
               };
 
               // Encrypt password and adds user to DB
-              bcrypt
-                .hash(password, 10)
+              bcrypt.hash(password, 10)
                 .then(hashedPassword => {
-                  console.log(" Hash");
+                  console.log("Hash:");
                   // Add hashed password to user
                   newUser.password = hashedPassword;
                   console.log(hashedPassword);
@@ -149,13 +159,13 @@ app.post('/register', jsonParser, (req, res) => {
                       return res.status(200).json({ result, token });
                     })
                     .catch(error => {
-                      res.statusMessage = "Hubo un error de conexi'on con BD";
+                      res.statusMessage = "Hubo un error de conexión con la BD";
                       return res.status(500).send();
                     });
                 })
                 .catch(error => {
                   console.log("Error de hashing");
-                  res.statusMessage = "Error hashing";
+                  res.statusMessage = "Hubo un error al encriptar el password";
                   return res.status(500).send();
                 });
             }
@@ -163,61 +173,64 @@ app.post('/register', jsonParser, (req, res) => {
 
           .catch(error => {
             console.log("Error bd");
-            return Error(error);
+            res.statusMessage = "Hubo un error de conexión con la BD";
+            return res.status(500).send();
           });
       }
     })
     .catch(error => {
-      return Error(error);
+      res.statusMessage = "Hubo un error de conexión con la BD";
+      return res.status(500).send();
     });
 });
 
-                                ///////////////////////
-                                ///// DELETE USER /////
-                                ///////////////////////
-
+                                ///////////////////////////
+                                /////   DELETE USER   /////
+                                ///////////////////////////
 app.delete('/:username/unregister', jsonParser, (req, res) => {
   let usrN = req.params.username;
   let token = req.headers.authorization;
   token = token.replace("Bearer ", "");
 
-  // Validates token
-  jwt.verify(token, "secret", (error, user) => {
+  // Validate token
+  jwt.verify(token, "secret", (err, user) => {
     // Not valid token
-    if ( error ) {
-      res.statusMessage = "Token no válido";
-      return res.status(409).send();
-    }
-
-    // Valid token
-    // Validate parameter username and active session are the same
-    if( usrN != user.username ){
-      res.statusMessage = "El usuario de sesión y del parámetro no coinciden";
+    if ( err ) {
+      res.statusMessage = "Token no es válido";
       return res.status(403).send();
     }
 
+    // Valid token
+    // Validate username and active session's username are the same
+    if( usrN != user.username ){
+      res.statusMessage = "El usuario de la sesión activa no coincide";
+      return res.status(400).send();
+    }
+
+    // Delete user from DB
     UserList.delete( user.username )
       .then( deletedUsr => {
-        res.statusMessage = "Usuario eliminado exitosamente";
-        return res.status(204).json(deletedUsr);
+        res.statusMessage = "Usuario eliminado exitosamente de la BD";
+        return res.status(200).json(deletedUsr);
       })
       .catch( error => {
-        res.statusMessage = "Hubo un error con la BD";
+        res.statusMessage = "Hubo un error de conexión con la BD";
         return res.status(500).send();
       });
 
   });
 });
 
-                                ///////////////////////
-                                ///// UPDATE USER /////
-                                ///////////////////////
+                                ///////////////////////////
+                                /////   UPDATE USER   /////
+                                ///////////////////////////
+
+
 
 
                                 ///////////////////////////
                                 ///// CREATE WISHLIST /////
-                                ///////////////////////////
-                                
+                                ///////////////////////////    
 app.post('/:username/newWishlist', jsonParser, (req, res) => {
   // Store token
   let token = req.headers.authorization;
@@ -227,7 +240,7 @@ app.post('/:username/newWishlist', jsonParser, (req, res) => {
     // Token not valid
     if (err) {
       res.statusMessage = "Token no valido";
-      return res.status(400).send();
+      return res.status(403).send();
     }
     // Token valid
     let username = req.params.username;
@@ -235,14 +248,14 @@ app.post('/:username/newWishlist', jsonParser, (req, res) => {
 
     // Validate user with active session to the url parameter
     if(username != user.username){
-      res.statusMessage = "Usuario de sesión activa no coincide con el del url";
-      return res.status(409).send();
+      res.statusMessage = "El usuario de la sesión activa no coincide";
+      return res.status(400).send();
     }
 
     // Validate inputs
     if (!title || title == "") {
-      res.statusMessage = "Título faltante";
-      return res.status(402).send();
+      res.statusMessage = "Título no proporcionado";
+      return res.status(406).send();
     }
 
     let newWishlist = {
@@ -260,8 +273,8 @@ app.post('/:username/newWishlist', jsonParser, (req, res) => {
     if (isSecured) {
       newWishlist.isSecured = true;
       if (!password || password == "") {
-        res.statusMessage = "Password faltante";
-        return res.status(403).send();
+        res.statusMessage = "Contraseña no proporcionada";
+        return res.status(406).send();
       }
       newWishlist.password = password;
     }
@@ -271,16 +284,16 @@ app.post('/:username/newWishlist', jsonParser, (req, res) => {
       // Exists username in DB
       .then( user => {
         // Iterates over wishlists from user
-        for(let list of user.wishlists){
+        for( let list of user.wishlists ){
           // Wishlist title already exists
-          if(list.title == title){
-            res.statusMessage = "Título de wishlista no disponible";
+          if( list.title == title ){
+            res.statusMessage = "Título de wishlista no disponible, ya existe";
             return res.status(409).send();
           }
         }
 
         // Whishlist title available
-        UserList.createWishlist(username, newWishlist)
+        UserList.createWishlist( username, newWishlist )
         .then( result => {
 
           let data = {
@@ -292,20 +305,20 @@ app.post('/:username/newWishlist', jsonParser, (req, res) => {
             expiresIn: 60 * 10
           });
 
-          res.statusMessage = "Wishlist creada exitosamente";
-          return res.status(201).json({result, token});
+          res.statusMessage = "Wishlista creada exitosamente";
+          return res.status(200).json({result, token});
           
 
         })
         .catch( error => {
-          res.statusMessage = "Hubo un problema con la BD";
+          res.statusMessage = "Hubo un error de conexión con la BD";
           return res.status(500).send();
         });
         
       })
       // Doesn't exist username in DB
       .catch( error => {
-        res.statusMessage = "Error en conexión con la base de datos";
+        res.statusMessage = "Hubo un error de conexión con la BD";
         return res.status( 500 ).json( error );
       });
 
@@ -315,7 +328,6 @@ app.post('/:username/newWishlist', jsonParser, (req, res) => {
                                 ///////////////////////////
                                 ///// DELETE WISHLIST /////
                                 ///////////////////////////
-
 app.delete('/:username/deleteWishlist/:title', (req, res) => {
   // Store token
   let token = req.headers.authorization;
@@ -326,7 +338,7 @@ app.delete('/:username/deleteWishlist/:title', (req, res) => {
     // Not valid token
     if (err) {
       res.statusMessage = "Token no valido";
-      return res.status(400).send();
+      return res.status(403).send();
     }
 
     // Valid token
@@ -335,17 +347,17 @@ app.delete('/:username/deleteWishlist/:title', (req, res) => {
 
     // Validate active user and param user are the same
     if(username != user.username){
-      res.statusMessage = "Usuario de sesión activa no coincide con el del url";
-      return res.status(409).send();
+      res.statusMessage = "El usuario de la sesión activa no coincide";
+      return res.status(400).send();
     }
     
     //Validate title
     if(!title || title == ""){
-      res.statusMessage = "Título faltante";
-      return res.status(403).send();
+      res.statusMessage = "Título no proporcionado";
+      return res.status(406).send();
     }
-
-    UserList.deleteWishlist(username, title)
+    // Deletes wishlist
+    UserList.deleteWishlist( username, title )
       .then( result => {
 
         let data = {
@@ -357,89 +369,88 @@ app.delete('/:username/deleteWishlist/:title', (req, res) => {
           expiresIn: 60 * 10
         });
   
-      return res.status(200).json({result, token});
+      return res.status(200).json({ result, token });
       })
       .catch( error => {
-        res.statusMessage = "Hubo un error en la base de datos"
+        res.statusMessage = "Hubo un error de conexion con la BD"
         return res.status(500).send();
       });
   });
 });
 
-// Endpoint for signIn
+
+                                ///////////////////////////
+                                /////     SIGN IN     /////
+                                ///////////////////////////
 app.post("/signIn", jsonParser, (req, res) => {
   let username = req.body.username;
   let password = req.body.password;
 
+  // Validates inputs
   if (!username || username == "") {
-    res.statusMessage = "Usuario no proporcionado";
-    return res.status(402).send();
+    res.statusMessage = "Nombre de usuario no proporcionado";
+    return res.status(406).send();
   }
 
   if (!password || password == "") {
-    res.statusMessage = "Contraseña no proporcionado";
-    return res.status(402).send();
+    res.statusMessage = "Contraseña no proporcionada";
+    return res.status(406).send();
   }
 
-  //Verifica que el usuario exista y regresa su pass de la BD
+  // Validates if user exists
   UserList.findByUsername(username)
     .then(user => {
+      // User exists
       if (user) {
+        // Stores hashed password of user
         let hashedPassword = user.password;
 
+        // Compares input password to saved password in DB
         bcrypt
           .compare(password, hashedPassword)
           .then(result => {
+            // Password matches
             if (result) {
               let data = {
                 username
               };
+              // Create token
               let token = jwt.sign(data, "secret", {
                 expiresIn: 60 * 10
               });
 
               return res.status(200).json({ token });
+              // Password doesn't match
             } else {
               console.log("Contraseña incorrecta");
               res.statusMessage = "Contraseña incorrecta";
-              return res.status(402).send();
+              return res.status(400).send();
             }
           })
           .catch(error => {
             throw Error(error);
           });
       } else {
+        // User doen't exist
         console.log("error");
         res.statusMessage = "Usuario no encontrado";
-        return res.status(404).send();
+        return res.status(400).send();
       }
     })
     .catch(error => {
-      return Error(error);
+      res.statusMessage = "Hubo un error de conexión con la BD"ñ
+      return res.status(500).send();
     });
 });
 
-// Token validation
-app.get("/validate", (req, res) => {
-  let token = req.headers.authorization;
-  token = token.replace("Bearer ", "");
-
-  jwt.verify(token, "secret", (err, user) => {
-    if (err) {
-      res.statusMessage = "Token no valido";
-      return res.status(400).send();
-    }
-    console.log(user);
-    res.statusMessage = "Token válido";
-    return res.status(200).send();
-  });
-});
-
-// Create wishlist
+                                ///////////////////////////
+                                ///// CREATE WISHLIST /////
+                                ///////////////////////////
 app.post("/newWishlist", jsonParser, (req, res) => {});
 
-/* Server & Database config */
 
+
+/* Server & Database config */
 function runServer(port, databaseUrl) {
   return new Promise((resolve, reject) => {
     mongoose.connect(databaseUrl, response => {

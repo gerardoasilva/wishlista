@@ -123,7 +123,7 @@ let UserList = {
             return users;
         })
         .catch( error => {
-            return error;
+            throw Error(error);
         });
     },
     findByUsername : function( userN ){
@@ -180,7 +180,7 @@ let UserList = {
                 return wishlist;
             })
             .catch( error => {
-                return error;
+                throw Error(error);
             });
     },
     deleteWishlist : function(username, title){
