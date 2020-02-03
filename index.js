@@ -286,7 +286,7 @@ app.post("/:username/newWishlist", jsonParser, (req, res) => {
           let data = {
             username
           };
-          let token = jwt.sign(data, "secret", {
+          token = jwt.sign(data, "secret", {
             expiresIn: 60 * 10
           });
 
@@ -379,8 +379,213 @@ app.get("/validate", (req, res) => {
   });
 });
 
-// Create wishlist
-app.post("/newWishlist", jsonParser, (req, res) => {});
+
+// / / /
+//
+//
+//
+///
+
+
+app.put("/:username/:title/updateWishlist",jsonParser,(req, res) => {
+  // Store token
+  let token = req.headers.authorization;
+  token = token.replace("Bearer ", "");
+  // Validate token
+  jwt.verify(token, "secret", (err, user) => {
+    // Token not valid
+    if (err) {
+      res.statusMessage = "Token no valido";
+      return res.status(400).send();
+    }
+    //Token valid
+    let username = req.params.username;
+    let wishlistTitle = req.params.title;
+    let { title, description, isPublic, isSecured, password, wishName, productImage, priority, notes, shoppingURL, isReserved} = req.body;
+
+    //Inputs from wishlist
+    let newWishlist = { };
+
+    if (title || title != "") {
+      newWishlist.title = title
+    }
+
+    if (description && description != "") {
+      newWishlist.description = description;
+    }
+
+    if (isPublic) {
+      newWishlist.isPublic = true;
+    }
+
+    if (isSecured) {
+      newWishlist.isSecured = true;
+      if (!password || password == "") {
+        res.statusMessage = "Password faltante";
+        return res.status(403).send();
+      }
+      newWishlist.password = password;
+    }
+
+    //Inputs from wishlist's wishes
+    let newItem = {};
+
+    if (wishName || wishName != ""){
+      newItem.wishName = wishName;
+    }
+
+    if( productImage || productImage != "" ){
+      newItem.productImage = productImage;
+    }
+
+    if( priority || priority != "" ){
+      newItem.priority = priority;
+    }
+
+    if( notes || notes != "" ){
+      newItem.notes = notes;
+    }
+
+    if( shoppingURL || shoppingURL != "" ){
+      newItem.shoppingURL = shoppingURL;
+    }
+
+    if( isReserved){
+      newItem.isReserved = true;
+    }
+
+    console.log("hola")
+    // Get user obj from username
+    UserList.getUserByUsername( username )
+      // Exists username in DB
+      .then( user => {
+        console.log(user);
+        // Iterates over wishlists from user
+        for(let list of user.wishlists){
+          // Wishlist title already exists
+          if(list.title == title){
+            res.statusMessage = "Título de wishlista no disponible";
+            return res.status(409).send();
+          }
+        }
+
+        //Updates wishlist
+        UserList.updateWishlist(username, newWishlist )
+        .then( result => {
+          console.log(result);
+
+          //Updates the wishlist's wishes 
+
+
+
+          let data = {
+            username
+          };
+          token = jwt.sign(data, "secret", {
+            expiresIn: 60 * 10
+          });
+
+          res.statusMessage = "Wishlist actualizada exitosamente";
+          return res.status(201).json({result, token});
+          
+
+        })
+        .catch( error => {
+          res.statusMessage = "Hubo un problema con la BD";
+          return res.status(500).send();
+        });
+        
+
+      })
+      .catch( error => {
+          res.statusMessage = "Error en conexión con la base de datos";
+          return res.status( 500 ).send( error );
+
+      });
+
+  });
+});
+
+app.post('/:username/:wishlist/createWish', jsonParser, (req, res) => {
+  // Store token
+  let token = req.headers.authorization;
+  token = token.replace("Bearer ", "");
+  // Validate token
+  jwt.verify(token, "secret", (err, user) => {
+    // Token not valid
+    if (err) {
+      res.statusMessage = "Token no valido";
+      return res.status(400).send();
+    }
+    //Token valid
+    let username = req.params.username;
+    let wishlistTitle = req.params.wishlist;
+    let {
+      wishName,
+      productImage,
+      priority,
+      notes,
+      shoppingURL,
+      isReserved
+    } = req.body;
+
+    //Inputs from wishlist's wishes
+    let newItem = {
+      wishName,
+      priority
+    };
+
+    if (!wishName || wishName == "") {
+      res.statusMessage = "Nombre no proporcionado";
+      return res.status(402).send();
+    }
+
+    if (!priority || priority == "") {
+      res.statusMessage = "Prioridad no proporcionada";
+      return res.status(402).send();
+    }
+
+    if(username != user.username){
+      res.statusMessage = "El usuario de la sesi'on activa no coincide";
+      return res.status(402).send();
+    }
+
+    if (productImage && productImage != "") {
+      newItem.productImage = productImage;
+    }
+
+    if (notes && notes != "") {
+      newItem.notes = notes;
+    }
+
+    if (shoppingURL && shoppingURL != "") {
+      newItem.shoppingURL = shoppingURL;
+    }
+
+    if (isReserved) {
+      newItem.isReserved = true;
+    }
+
+
+    UserList.createWish(user.username, wishlistTitle, newItem)
+    .then( addedItem => {
+      let data = {
+        username
+      };
+      let token = jwt.sign(data, "secret", {
+        expiresIn: 60 * 10
+      });
+
+      res.statusMessage = "Wish agregado exitosamente a la wishlist " + wishlistTitle;
+      return res.status(200).json({addedItem, token});
+    })
+    .catch( error => {
+      res.statusMessage = "Hubo un error con la BD";
+      return res.status(500).send();
+    });
+  });
+
+});
 
 /* Server & Database config */
 
