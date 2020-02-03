@@ -17,6 +17,8 @@ app.use(morgan("dev"));
 
 /////////////////////////////////////////////////////////////////
 // Token validation
+/*
+
 app.get("/validate", (req, res) => {
   let token = req.headers.authorization;
   token = token.replace("Bearer ", "");
@@ -31,6 +33,8 @@ app.get("/validate", (req, res) => {
     return res.status(200).send();
   });
 });
+
+*/
 /////////////////////////////////////////////////////////////////
 
 
@@ -438,7 +442,7 @@ app.post("/signIn", jsonParser, (req, res) => {
       }
     })
     .catch(error => {
-      res.statusMessage = "Hubo un error de conexión con la BD"ñ
+      res.statusMessage = "Hubo un error de conexión con la BD";
       return res.status(500).send();
     });
 });
