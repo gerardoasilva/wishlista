@@ -218,7 +218,7 @@ app.delete('/:username/unregister', jsonParser, (req, res) => {
                                 ///// CREATE WISHLIST /////
                                 ///////////////////////////
                                 
-app.post("/:username/newWishlist", jsonParser, (req, res) => {
+app.post('/:username/newWishlist', jsonParser, (req, res) => {
   // Store token
   let token = req.headers.authorization;
   token = token.replace("Bearer ", "");
@@ -235,7 +235,7 @@ app.post("/:username/newWishlist", jsonParser, (req, res) => {
 
     // Validate user with active session to the url parameter
     if(username != user.username){
-      res.statusMessage = "No se puede crear una lista a nombre de alguien más, usuario de sesión no coincide con el del url";
+      res.statusMessage = "Usuario de sesión activa no coincide con el del url";
       return res.status(409).send();
     }
 
@@ -286,6 +286,8 @@ app.post("/:username/newWishlist", jsonParser, (req, res) => {
           let data = {
             username
           };
+
+          // Renew token
           let token = jwt.sign(data, "secret", {
             expiresIn: 60 * 10
           });
@@ -307,6 +309,60 @@ app.post("/:username/newWishlist", jsonParser, (req, res) => {
         return res.status( 500 ).json( error );
       });
 
+  });
+});
+
+                                ///////////////////////////
+                                ///// DELETE WISHLIST /////
+                                ///////////////////////////
+
+app.delete('/:username/deleteWishlist/:title', (req, res) => {
+  // Store token
+  let token = req.headers.authorization;
+  token = token.replace("Bearer ", "");
+
+  // Validate token
+  jwt.verify(token, "secret", (err, user) => {
+    // Not valid token
+    if (err) {
+      res.statusMessage = "Token no valido";
+      return res.status(400).send();
+    }
+
+    // Valid token
+    let username = req.params.username;
+    let title = req.params.title;    
+
+    // Validate active user and param user are the same
+    if(username != user.username){
+      res.statusMessage = "Usuario de sesión activa no coincide con el del url";
+      return res.status(409).send();
+    }
+    
+    //Validate title
+    if(!title || title == ""){
+      res.statusMessage = "Título faltante";
+      return res.status(403).send();
+    }
+
+    UserList.deleteWishlist(username, title)
+      .then( result => {
+
+        let data = {
+          username
+        };
+  
+        // Renew token
+        let token = jwt.sign(data, "secret", {
+          expiresIn: 60 * 10
+        });
+  
+      return res.status(200).json({result, token});
+      })
+      .catch( error => {
+        res.statusMessage = "Hubo un error en la base de datos"
+        return res.status(500).send();
+      });
   });
 });
 

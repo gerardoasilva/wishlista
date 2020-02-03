@@ -182,6 +182,15 @@ let UserList = {
             .catch( error => {
                 return error;
             });
+    },
+    deleteWishlist : function(username, title){
+        return User.findOneAndUpdate({username: username},{$pull: {wishlists:{title: title}}})
+            .then( result => {
+                return result;
+            })
+            .catch( error => {
+                throw Error(error);
+            });
     }
 };
 
