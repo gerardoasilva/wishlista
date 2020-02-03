@@ -2,6 +2,63 @@ let mongoose = require( 'mongoose');
 
 mongoose.Promise = global.Promise;
 
+let itemCollection = mongoose.Schema({
+    title: {
+        type: String,
+        required: true,
+    },
+    productImage: {
+        type: String,
+    },
+    priority: {
+        type: Number,
+        required: true
+    },
+    notes: {
+        type: String
+    },
+    shoppingURL: {
+        type: String,
+    },
+    isReserved: {
+        type: Boolean,
+        default: false,
+        required: true
+    },
+    creationDate: {
+        type: Date,
+        default: Date.now,
+        required: true
+    }
+});
+
+let wishlistCollection = mongoose.Schema({
+    title: {
+        type: String,
+        required: true,
+    },
+    description: {
+        type: String,
+    },
+    isPublic: {
+        type: Boolean,
+        default: "false"
+    },
+    isSecured: {
+        type: Boolean,
+        default: "false",
+    },
+    password: {
+        type: String,
+    },
+    creationDate: {
+        type: Date,
+        default: Date.now,
+        required: true
+    },
+    wishes: [ itemCollection ]
+});
+
 let userCollection = mongoose.Schema({
     username: {
         type: String,
@@ -35,6 +92,7 @@ let userCollection = mongoose.Schema({
         default: Date.now,
         required: true
     },
+    wishlists: [ wishlistCollection ],
     friends: [
         {
             user: {
@@ -50,7 +108,7 @@ let userCollection = mongoose.Schema({
             ]
         }
     ]
-    
+     
 });
 
 
@@ -104,7 +162,7 @@ let UserList = {
                 throw Error(error);
             })
     },
-    getIdByUsername : function( username ){
+    getUserByUsername : function( username ){
         return User.findOne( {username: username} )
         .then( user => {
             if( user ){
@@ -115,6 +173,15 @@ let UserList = {
         .catch(error => {
             throw Error(error);
         });
+    },
+    createWishlist : function(username, newWishlist ){
+        return User.findOneAndUpdate({username: username}, {$push:{wishlists: newWishlist}})
+            .then( wishlist => {
+                return wishlist;
+            })
+            .catch( error => {
+                return error;
+            });
     }
 };
 

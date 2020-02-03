@@ -209,6 +209,107 @@ app.delete('/:username/unregister', jsonParser, (req, res) => {
   });
 });
 
+                                ///////////////////////
+                                ///// UPDATE USER /////
+                                ///////////////////////
+
+
+                                ///////////////////////////
+                                ///// CREATE WISHLIST /////
+                                ///////////////////////////
+                                
+app.post("/:username/newWishlist", jsonParser, (req, res) => {
+  // Store token
+  let token = req.headers.authorization;
+  token = token.replace("Bearer ", "");
+  // Validate token
+  jwt.verify(token, "secret", (err, user) => {
+    // Token not valid
+    if (err) {
+      res.statusMessage = "Token no valido";
+      return res.status(400).send();
+    }
+    // Token valid
+    let username = req.params.username;
+    let { title, description, isPublic, isSecured, password } = req.body;
+
+    // Validate user with active session to the url parameter
+    if(username != user.username){
+      res.statusMessage = "No se puede crear una lista a nombre de alguien más, usuario de sesión no coincide con el del url";
+      return res.status(409).send();
+    }
+
+    // Validate inputs
+    if (!title || title == "") {
+      res.statusMessage = "Título faltante";
+      return res.status(402).send();
+    }
+
+    let newWishlist = {
+      title
+    };
+
+    if (description && description != "") {
+      newWishlist.description = description;
+    }
+
+    if (isPublic) {
+      newWishlist.isPublic = true;
+    }
+
+    if (isSecured) {
+      newWishlist.isSecured = true;
+      if (!password || password == "") {
+        res.statusMessage = "Password faltante";
+        return res.status(403).send();
+      }
+      newWishlist.password = password;
+    }
+
+    // Get user obj from username
+    UserList.getUserByUsername( username )
+      // Exists username in DB
+      .then( user => {
+        // Iterates over wishlists from user
+        for(let list of user.wishlists){
+          // Wishlist title already exists
+          if(list.title == title){
+            res.statusMessage = "Título de wishlista no disponible";
+            return res.status(409).send();
+          }
+        }
+
+        // Whishlist title available
+        UserList.createWishlist(username, newWishlist)
+        .then( result => {
+
+          let data = {
+            username
+          };
+          let token = jwt.sign(data, "secret", {
+            expiresIn: 60 * 10
+          });
+
+          res.statusMessage = "Wishlist creada exitosamente";
+          return res.status(201).json({result, token});
+          
+
+        })
+        .catch( error => {
+          res.statusMessage = "Hubo un problema con la BD";
+          return res.status(500).send();
+        });
+        
+      })
+      // Doesn't exist username in DB
+      .catch( error => {
+        res.statusMessage = "Error en conexión con la base de datos";
+        return res.status( 500 ).json( error );
+      });
+
+  });
+});
+
 // Endpoint for signIn
 app.post("/signIn", jsonParser, (req, res) => {
   let username = req.body.username;
@@ -267,12 +368,12 @@ app.get("/validate", (req, res) => {
   let token = req.headers.authorization;
   token = token.replace("Bearer ", "");
 
-  jwt.verify(token, "secret", (err, username) => {
+  jwt.verify(token, "secret", (err, user) => {
     if (err) {
       res.statusMessage = "Token no valido";
       return res.status(400).send();
     }
-
+    console.log(user);
     res.statusMessage = "Token válido";
     return res.status(200).send();
   });
