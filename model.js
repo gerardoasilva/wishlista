@@ -3,7 +3,7 @@ let mongoose = require( 'mongoose');
 mongoose.Promise = global.Promise;
 
 let itemCollection = mongoose.Schema({
-    title: {
+    wishName: {
         type: String,
         required: true,
     },
@@ -22,7 +22,7 @@ let itemCollection = mongoose.Schema({
     },
     isReserved: {
         type: Boolean,
-        default: false,
+        default: "false",
         required: true
     },
     creationDate: {
@@ -36,9 +36,10 @@ let wishlistCollection = mongoose.Schema({
     title: {
         type: String,
         required: true,
+        unique: true
     },
     description: {
-        type: String,
+        type: String
     },
     isPublic: {
         type: Boolean,
@@ -166,11 +167,12 @@ let UserList = {
         return User.findOne( {username: username} )
         .then( user => {
             if( user ){
+                console.log(user);
                 return user;
             }
             throw new Error('User not found');
         })
-        .catch(error => {
+        .catch(error => {  
             throw Error(error);
         });
     },
@@ -191,7 +193,54 @@ let UserList = {
             .catch( error => {
                 throw Error(error);
             });
+    },
+
+    updateWishlist : function(username, newWishlist ){
+        //return User.findOneAndUpdate({username: username}, {$set:{wishlists: newWishlist}})
+        return User.findOneAndUpdate({username: username }, {$set:{wishlists: {title: title, wishes: newWishlist}} } )            .then( wishlist => {
+                return wishlist;
+            })
+            .catch( error => {
+                return error;
+            });
+    },
+    //findOneAndUpdate({username: username}, {$set:{wishlists: {title:title}}})
+
+    updateWishes : function(username, title, newWishlist ){
+        return User.findOneAndUpdate({username: username }, {$set:{wishlists: {title: title, wishes: newWishlist}} } )
+            .then( wishlist => {
+                return wishlist;
+            })
+            .catch( error => {
+                return error;
+            });
+
+    },
+/*
+    serModel.update( {_id: myid }, { $push: { "Uv.$[u].votes.$[v].critaire3": "df" } }, { upsert: true, arrayFilters: [ { 'u.code': "Info204" }, { "v.critaire3": {$exists:true} } ] } )
+*/
+    createWish : function(username, title, newItem ){
+        console.log("----");
+        console.log(username);
+        console.log(title);
+        console.log(newItem);
+        console.log("----");
+        
+        return User.update(
+            {username: username},
+            {$push: {"wishlists.$[t].wishes": newItem}},
+            {upsert: true, arrayFilters: [ { 't.title': title } ]}
+
+            )
+        .then( wish => {
+            return wish;
+        })
+        .catch( error => {
+            throw Error(error);
+        });
+
     }
+    
 };
 
 
