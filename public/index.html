@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <script src="https://kit.fontawesome.com/ee013fee7d.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="./css/index.css" type="text/css">
     <meta charset="UTF-8">
@@ -9,177 +11,56 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Wishlista</title>
 </head>
+
 <body>
-    
-    <!-- Image and text -->
-<!-- <header class="navbar navbar-light bg-light dfle">
-    <a class="navbar-brand" href="#">
-      <img src="https://lh3.googleusercontent.com/proxy/rSnZTOw7lYBz2y1Hz-zj_MBawY5wEO_rPjjT4Zim4ot-drcBIEzAeVSFAShAsW3OX1mjRpv6dDm2C5x1t2aMfzH-GE9ybreYP8VSECayHIyrDw" width="30" height="30" class="d-inline-block align-top" alt="">
-      Whishlista
-    </a>
-    <div class="">
-        <button class="btn btn-lg btn-outline-primary my-2 my-sm-0 border-0" type="submit">Sign in</button>
-        <button class="btn btn-lg btn-outline-primary my-2 my-sm-0" type="submit">Sign Up</button>
-    </div>
-    
-</header> -->
 
-<nav class="navbar navbar-expand-md navbar-light bg-light">
-    <a class="navbar-brand" href="#index.html">
-        <img src="./img/wishlista_logo.png"
-            width="30" height="30" class="d-inline-block align-top" alt="">
-        Whishlista
-    </a>
-
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
-            aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-            <div class="navbar-nav">
-                <a href="home.html"><button id="singIn" class="btn btn-lg btn-outline-primary my-2 my-sm-0 border-0"> Sign In</button></a>
-                <a href="#"><button id="SignUp" class="btn btn-lg btn-outline-primary my-2 my-sm-0"> Sign Up </button></a>
-            </div>
+    <nav class="container navbar navbar-light ">
+        <a class="navbar-brand" href="index.html">
+            <img src="./img/wishlista_logo.png" width="30" height="30" class="d-inline-block align-top" alt="">
+            Whishlista
+        </a>
+        <div class="navbar p-0">
+            <a href="#"><button id="singIn" class="btn btn-lg btn-outline-primary my-2 my-sm-0 border-0"> Sign
+                    In</button></a>
+            <a href="#"><button id="SignUp" class="btn btn-lg btn-outline-primary my-2 my-sm-0"> Sign Up </button></a>
         </div>
+    </nav>
 
-    </div>
+    <main class="container section bg-info text-center d-flex align-content-center">
+        <!-- <section class="col-5 bg-light mx-auto">
+            a
+        </section> -->
+    </main>
 
-</nav>
-
-
-
-
-
-
-
-
-    <form id="searchBar" action="">
-        <div class="container mt-5 text-center">
-                <h1 class="display-4 my-5">Wishlista</h1>
-                <!-- <p class="lead">Busca un deseo.</p> -->
-                <div class="form-control mr-sm-2 d-inline-flex col-md-8">
-                    <input id="searchQuery" type="text" class="w-100 border-0" placeholder="Buscar deseos">
-                    <div >
-                        <button type="submit" class="bg-transparent border-0"><i class="fas fa-search mx-1"></i></button>
-                    </div>
-                </div>
-        </div>
-    </form>
-
-    <section class="container px-5 text-center my-5">
-        <button class="btn btn-primary btn-lg">
-            Buscar deseos
-        </button>
+    <section class="section-md">
+        
     </section>
 
-    <div class="container-fluid bg-light p-5">
-        <h3><i class="fas fa-fire"></i> Los más deseados!</h3>
+    <section class="section-md">
 
-        <div id="hotPicks" class="row d-flex justify-content-around">
-
-
-                <div class="card" style="width: 18rem;">
-                    <img class="card-img-top" src="https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcROLIbj8N4JBnQN81mmfAptShmHqVO7FvvePCzJ4KrN2RYCdw1a" alt="Card image cap">
-                    <div class="card-body">
-                        <h5 class="card-title">Apple Watch Series 4 GPS</h5>
-                        <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                        <a href="#" class="btn btn-primary">Desear</a>
-                        
-                    </div>
-                </div>
-                <div class="card" style="width: 18rem;">
-                    <img class="card-img-top" src="https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcROLIbj8N4JBnQN81mmfAptShmHqVO7FvvePCzJ4KrN2RYCdw1a" alt="Card image cap">
-                    <div class="card-body">
-                        <h5 class="card-title">Apple Watch Series 4 GPS</h5>
-                        <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                        <a href="#" class="btn btn-primary">Desear</a>
-                        
-                    </div>
-                </div>
-                <div class="card" style="width: 18rem;">
-                    <img class="card-img-top" src="https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcROLIbj8N4JBnQN81mmfAptShmHqVO7FvvePCzJ4KrN2RYCdw1a" alt="Card image cap">
-                    <div class="card-body">
-                        <h5 class="card-title">Apple Watch Series 4 GPS</h5>
-                        <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                        <a href="#" class="btn btn-primary">Desear</a>
-                        
-                    </div>
-                </div>
-                <div class="card" style="width: 18rem;">
-                    <img class="card-img-top" src="https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcROLIbj8N4JBnQN81mmfAptShmHqVO7FvvePCzJ4KrN2RYCdw1a" alt="Card image cap">
-                    <div class="card-body">
-                        <h5 class="card-title">Apple Watch Series 4 GPS</h5>
-                        <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                        <a href="#" class="btn btn-primary">Desear</a>
-                        
-                    </div>
-                </div>
-                <div class="card" style="width: 18rem;">
-                    <img class="card-img-top" src="https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcROLIbj8N4JBnQN81mmfAptShmHqVO7FvvePCzJ4KrN2RYCdw1a" alt="Card image cap">
-                    <div class="card-body">
-                        <h5 class="card-title">Apple Watch Series 4 GPS</h5>
-                        <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                        <a href="#" class="btn btn-primary">Desear</a>
-                        
-                    </div>
-                </div>
-
-
-        </div>
-    </div>
-
-    <!-- <div class="container bg-primary text-center mb-5">
-        <div class="row py-5">
-            <div class="col-4 p-0 bg-warning">
-                <div class="card" style="width: 18rem;">
-                    <img class="card-img-top" src="https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcROLIbj8N4JBnQN81mmfAptShmHqVO7FvvePCzJ4KrN2RYCdw1a" alt="Card image cap">
-                    <div class="card-body">
-                        <h5 class="card-title">Apple Watch Series 4 GPS</h5>
-                        <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                        <a href="#" class="btn btn-primary">Desear</a>
-                        
-                    </div>
-                </div>
-            </div>
-            <div class="col-4 p-0">
-                <div class="card" style="width: 18rem;">
-                    <img class="card-img-top" src="https://images.rolex.com/2019/catalogue/images/upright-bba-with-shadow/m116610lv-0002.png?imwidth=1024" alt="Card image cap">
-                    <div class="card-body">
-                        <h5 class="card-title">Rolex YACHT</h5>
-                        <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                        <a href="#" class="btn btn-primary">Desear</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-4 p-0">
-                <div class="card" style="width: 18rem;">
-                    <img class="card-img-top" src="https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcTz4jGP9DiqP9uozbutXNxbPPbDNlmDvVyk3PgpFEIGt_UganD5" alt="Card image cap">
-                    <div class="card-body">
-                        <h5 class="card-title">Bose Sounlink Mini II</h5>
-                        <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                        <a href="#" class="btn btn-primary">Desear</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div> -->
+    </section>
 
     <!-- Footer -->
-    <footer class="footer row p-5">
-        <div class="col-6 jtext-left">
-            <p>WishLista</p>
-        </div>
-        <div class="col-6 text-right">
-            <p>Created by Gerardo Silva & Luis Caballero</p>
+    <footer class="text-light bg-dark d-flex justify-content-between p-0">
+        <div class="container navbar py-5">
+            <p class="m-0">WishLista</p class="m-0">
+            <p class="m-0">Created by Gerardo Silva & Luis Caballero</p>
         </div>
     </footer>
-    
+
 
 
     <!-- <script   src="https://code.jquery.com/jquery-3.4.1.min.js"></script> -->
-    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+        integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous">
+    </script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous">
+    </script>
     <script src="./js/index.js"></script>
 </body>
+
 </html>
