@@ -112,8 +112,6 @@ let userCollection = mongoose.Schema({
      
 });
 
-
-
 let User = mongoose.model('users', userCollection);
 
 // Querys
@@ -242,12 +240,6 @@ let UserList = {
     }
     
 };
-
-
-
-
-
-
 
 module.exports = {
     UserList

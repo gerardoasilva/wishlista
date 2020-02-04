@@ -10,6 +10,20 @@ let express = require("express"),
   app = express(),
   server;
 
+
+app.get("/users", jsonParser, (req, res) => {
+  console.log(req.body);
+  UserList.getAll()
+    .then(userList => {
+      return res.status(200).json(userList);
+    })
+    .catch(error => {
+      console.log(error);
+      res.statusMessage = "Hubo un error de conexion con la BD";
+      return res.status(500).send();
+    });
+});
+
 app.use(express.static("public"));
 app.use(morgan("dev"));
 
@@ -85,7 +99,7 @@ app.post("/signIn", jsonParser, (req, res) => {
 /////   CREATE USER   /////
 ///////////////////////////
 app.post("/register", jsonParser, (req, res) => {
-  let { username, fName, lName, email, password, confirmPassword, bDate, country } = req.body;
+  let { username, fName, lName, email, password, confirmPassword, bDate } = req.body;
 
   if (!fName || fName == "") {
     res.statusMessage = "Nombre no proporcionado";
@@ -118,11 +132,6 @@ app.post("/register", jsonParser, (req, res) => {
 
   if (!bDate || bDate == "") {
     res.statusMessage = "Fecha de nacimiento no proporcionada";
-    return res.status(406).send();
-  }
-
-  if (!country || country == "") {
-    res.statusMessage = "País no proporcionado";
     return res.status(406).send();
   }
 
@@ -160,8 +169,7 @@ app.post("/register", jsonParser, (req, res) => {
                 fName: fName,
                 lName: lName,
                 email: email,
-                bDate: bDate,
-                country: country
+                bDate: bDate
               };
 
               // Encrypt password and adds user to DB
