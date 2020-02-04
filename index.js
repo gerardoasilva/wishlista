@@ -5,20 +5,30 @@ let express = require("express"),
   jwt = require("jsonwebtoken"),
   bcrypt = require("bcrypt"),
   jsonParser = bodyParser.json(),
-  { UserList } = require("./model"),
+  { UserList, WishlistList, ItemList } = require("./model"),
   { DATABASE_URL, PORT } = require("./config"),
   app = express(),
   server;
 
 
 app.get("/users", jsonParser, (req, res) => {
-  console.log(req.body);
   UserList.getAll()
     .then(userList => {
       return res.status(200).json(userList);
     })
     .catch(error => {
       console.log(error);
+      res.statusMessage = "Hubo un error de conexion con la BD";
+      return res.status(500).send();
+    });
+});
+
+app.get("/wishlists", jsonParser, (req, res) => {
+  WishlistList.getAll()
+    .then(wishlists => {
+      return res.status(200).json(wishlists);
+    })
+    .catch(error => {
       res.statusMessage = "Hubo un error de conexion con la BD";
       return res.status(500).send();
     });
@@ -98,7 +108,7 @@ app.post("/signIn", jsonParser, (req, res) => {
 ///////////////////////////
 /////   CREATE USER   /////
 ///////////////////////////
-app.post("/register", jsonParser, (req, res) => {
+app.post("/signUp", jsonParser, (req, res) => {
   let { username, fName, lName, email, password, confirmPassword, bDate } = req.body;
 
   if (!fName || fName == "") {
@@ -270,64 +280,73 @@ app.post("/:username/newWishlist", jsonParser, (req, res) => {
   token = token.replace("Bearer ", "");
   // Validate token
   jwt.verify(token, "secret", (err, user) => {
-    // Token not valid
-    if (err) {
-      res.statusMessage = "Token no valido";
-      return res.status(403).send();
-    }
-    // Token valid
-    let username = req.params.username;
-    let { title, description, isPublic, isSecured, password } = req.body;
+      // Token not valid
+      if (err) {
+        res.statusMessage = "Token no valido";
+        return res.status(403).send();
+      }
+      // Token valid
+      let username = req.params.username;
+      let { title, description, isPublic, isSecured, password } = req.body;
 
-    // Validate user with active session to the url parameter
-    if (username != user.username) {
-      res.statusMessage = "El usuario de la sesión activa no coincide";
-      return res.status(400).send();
-    }
+      // Validate user with active session to the url parameter
+      if (username != user.username) {
+        res.statusMessage = "El usuario de la sesión activa no coincide";
+        return res.status(400).send();
+      }
 
-    // Validate inputs
-    if (!title || title == "") {
-      res.statusMessage = "Título no proporcionado";
-      return res.status(406).send();
-    }
-
-    let newWishlist = {
-      title
-    };
-
-    if (description && description != "") {
-      newWishlist.description = description;
-    }
-
-    if (isPublic) {
-      newWishlist.isPublic = true;
-    }
-
-    if (isSecured) {
-      newWishlist.isSecured = true;
-      if (!password || password == "") {
-        res.statusMessage = "Contraseña no proporcionada";
+      // Validate inputs
+      if (!title || title == "") {
+        res.statusMessage = "Título no proporcionado";
         return res.status(406).send();
       }
-      newWishlist.password = password;
-    }
 
-    // Get user obj from username
-    UserList.getUserByUsername(username)
-      // Exists username in DB
-      .then(user => {
-        // Iterates over wishlists from user
-        for (let list of user.wishlists) {
-          // Wishlist title already exists
-          if (list.title == title) {
+      let newWishlist = {
+        title
+      };
+
+      if (description && description != "") {
+        newWishlist.description = description;
+      }
+
+      if (isPublic) {
+        newWishlist.isPublic = true;
+      }
+
+      if (isSecured) {
+        newWishlist.isSecured = true;
+        if (!password || password == "") {
+          res.statusMessage = "Contraseña no proporcionada";
+          return res.status(406).send();
+        }
+        newWishlist.password = password;
+      }
+
+      WishlistList.getIdByAuthor(username)
+      .then( user => {
+
+      // Get user's wishlists
+      WishlistList.getAllByAuthor(username)
+      .then(wishlists => {
+        // Validate if number of wishlists is exceeded
+        if (wishlists.length >= 5) {
+          res.statusMessage = "Número de wihlistas excedido";
+          return res.status(403).send();
+        }
+        // Number of wishlists not exceeded
+        for (let i of wishlists) {
+          // Title is repeated
+          if (i.title == title) {
             res.statusMessage = "Título de wishlista no disponible, ya existe";
             return res.status(409).send();
           }
         }
-
         // Whishlist title available
-        UserList.createWishlist(username, newWishlist)
-          .then(result => {
+        // Add author to newWishlist
+        newWishlist.author = user._id;
+        // Create wishlist
+        WishlistList.createWishlist(newWishlist)
+          .then(wishlist => {
             let data = {
               username
             };
@@ -337,19 +356,24 @@ app.post("/:username/newWishlist", jsonParser, (req, res) => {
             });
 
             res.statusMessage = "Wishlista creada exitosamente";
-            return res.status(200).json({ result, token });
+            return res.status(200).json({ wishlist, token });
           })
           .catch(error => {
             res.statusMessage = "Hubo un error de conexión con la BD";
             return res.status(500).send();
           });
       })
-      // Doesn't exist username in DB
-      .catch(error => {
+      .catch( error => {
         res.statusMessage = "Hubo un error de conexión con la BD";
-        return res.status(500).json(error);
+        return res.status(500).send();
       });
-  });
+
+      })
+      .catch( error => {
+        res.statusMessage = "Hubo un error de conexión con la BD";
+        return res.status(500).send();
+      });
+    });
 });
 
 ///////////////////////////

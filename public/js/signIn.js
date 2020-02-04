@@ -15,7 +15,6 @@ function watchButtons(){
             success: responseJSON => {
                 localStorage.setItem('token',responseJSON.token);
                 console.log(responseJSON);
-                debugger;
                 location.href = "/home.html";
             },
             error: err => {

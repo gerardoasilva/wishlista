@@ -1,6 +1,7 @@
 html, body {
     height: 100%;
     width: 100%;
+    background-color: #FCC439;
 }
 
 * {
@@ -9,10 +10,40 @@ html, body {
     box-sizing: border-box;
 }
 
-.section {
+h1 {
+    text-shadow: 4px 4px #000;
+}
+
+.h-footer {
+    text-shadow: 4px 4px #000;
+}
+
+.section-100 {
+    height: 100%;
+    width: 100%;
+}
+
+.section-50 {
+    height: 50%;
+    width: 50%;
+}
+
+.section-y-100 {
     height: 100%;
 }
 
-.section-md {
+.section-x-100 {
+    width: 100%;
+}
+
+.section-y-50 {
     height: 50%;
+}
+
+.section-x-50 {
+    width: 50%;
+}
+
+.bg-img {
+    background: url("/public/img/gift-bg.jpg");
 }
