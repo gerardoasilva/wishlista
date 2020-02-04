@@ -13,7 +13,7 @@ function watchRegister() {
 
         $.ajax({
             type: "POST",
-            url: "/register",
+            url: "/signUp",
             data: JSON.stringify( { fName, lName, username, email, password, confirmPassword, bDate } ),
             contentType: "application/json",
             dataType: "json",

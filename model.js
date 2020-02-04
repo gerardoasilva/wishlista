@@ -162,8 +162,10 @@ let UserList = {
             });
     },
     create : function( newUser ){
+        console.log(newUser);
         return User.create( newUser )
         .then( user => {
+            console.log(user);
             return user;
         })
         .catch(error => {
@@ -249,9 +251,9 @@ let WishlistList = {
             }
             throw new Error('Wishlista no encontrada');
         })
-        .catch(error => {  
-            throw Error(error);
-        });
+    },
+    updateWishlist: function(newWishlist){
+        return Wishlist.update()
     }
 };
 

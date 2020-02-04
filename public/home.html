@@ -20,15 +20,96 @@
             Whishlista
         </a>
         <div class="navbar p-0">
-            <a href="signIn.html"><button id="singInBtn" class="btn btn-lg btn-outline-primary my-2 my-sm-0 border-0"> Cerrar Sesión </button></a>
+            <a href="index.html"><button id="singInBtn" class="btn btn-lg btn-outline-primary my-2 my-sm-0 border-0"> Cerrar Sesión </button></a>
             <a href="signUp.html"><button id="SignUpBtn" class="btn btn-lg btn-outline-primary my-2 my-sm-0"> Perfil </button></a>
         </div>
     </nav>
 
     <main class="container section bg-info text-center d-flex align-content-center">
-        <!-- <section class="col-5 bg-light mx-auto">
-            a
-        </section> -->
+        
+         <section class="col-5 bg-light mx-auto">
+            <div> 
+                <!-- Button to trigger modal -->  
+                <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Create wishlist</button>            
+            </div>
+   
+
+            <!-- Trigger the modal with a button -->
+
+
+  <!-- Modal -->
+  <div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Wishlist creation</h4>
+        </div>
+        <div class="modal-body">
+
+            <form id="wishlistForm">
+                <div>
+                    <label>Título: </label> <span class="mandatory">*</span>
+                    <input id="title" name="wishlistTitle" type="text"></input>
+                </div>
+                <div>
+                    <label>Descripción: </label>
+                    <input id="description" name="wishlistDescription" type="text"></input>
+                </div>
+                <div>
+                    <div>
+                        <p>
+                            Publico:
+                        </p>
+                    </div>
+                    <div>
+                        <label for="yesPublic"> Sí: </label>
+                        <input type="radio" name="publicConfirmation" id="yesPublic" value="true">
+                    </div>
+                    <div>
+                        <label for="noPublic"> No: </label>
+                        <input type="radio" name="publicConfirmation" id="noPublic" value="false">
+                    </div>
+                </div>
+                <div>
+                    <div>
+                        <p>
+                            Asegurado:
+                        </p>
+                    </div>
+                    <div>
+                        <label for="yesSecured"> Sí: </label>
+                        <input type="radio" name="securedConfirmation" id="yesSecured" value="true">
+                    </div>
+                    <div>
+                        <label for="noSecured"> No: </label>
+                        <input type="radio" name="securedConfirmation" id="noSecured" value="false">
+                    </div>
+                </div>
+        
+                <div>
+                    <label>Contraseña: </label>
+                    <input id="password" name="wishlistPassword" type="text"></input>
+                </div>
+                <div>
+                    <input id="createButton" name="createWishlistButton" type="submit" value="Crear"></input>
+                </div>
+            </form>
+
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+        </section> 
+
     </main>
 
     <!-- Footer -->
