@@ -475,11 +475,103 @@ app.post("/:username/newWishlist", jsonParser, (req, res) => {
 ///////////////////////////
 ///// UPDATE WISHLIST /////
 ///////////////////////////
+// app.put(':username/:wishlist/edit', jsonParser, (req, res) => {
+//   let userN = req.params.username;
+//   let title = req.params.wishlist;
+
+//   let token = req.headers.authorization;
+//   token = token.replace("Bearer ", "");
+//   // Validate token
+//   jwt.verify(token, "secret", (err, user) => {
+//     // Token not valid
+//     if (err) {
+//       res.statusMessage = "Token no valido";
+//       return res.status(401).send();
+//     }
+
+//     // Token valid
+//     let {username, fName, lName, email, password, confirmPassword, bDate} = req.body;
+//     //let userN = req.params.username;
+
+//     if(userN != user.username || username != user.username){
+//       res.statusMessage = "El usuario de la sesión activa no coincide";
+//       return res.status(400).send();
+//     }
+
+//     let newUser = {};
+
+//     //Validate inputs
+//     if (password && password != "") {
+//       newUser.password = password;
+
+//       if(!confirmPassword || confirmPassword == "" ){
+//         res.statusMessage = "Contraseña de confirmación no proporcionada";
+//         return res.status(400).send();
+//       }
+
+//     }
+
+//     if (password != confirmPassword) {
+//       res.statusMessage = "Contraseñas no coinciden";
+//       return res.status(400).send();
+//     }
+
+//     if (username && username != "") {
+//       newUser.username = username;
+//     }
+
+//     if (fName && fName != "") {
+//       newUser.fName = fName;
+//     }
+
+//     if (lName && lName != "") {
+//       newUser.lName = lName;
+//     }
+
+//     if (email && email != "") {
+//       newUser.email = email;
+//     }
+
+//     if (bDate && bDate != "") {
+//       newUser.bDate = bDate;
+//     }
+
+//     // Validate if user exists
+//     UserList.updateUser( user.username, newUser )
+//       .then ( user => {
+//         // User exist
+//         if( user ){
+
+//           let data = {
+//             username
+//           };
+//           // Create token
+//           token = jwt.sign(data, "secret", {
+//             expiresIn: 60 * 10
+//           });
+          
+//           res.statusMessage = "Información del usuario actualizada exitosamente";
+//           return res.status(200).json({user, token})
+//         }
+//         // User does not exist
+//         else{
+//           res.statusMessage = "Usuario no encontrado";
+//           return res.status(404).send();
+//         }
+
+//       })
+//       .catch( error => {
+//         res.statusMessage = "Error en la BD al actualizar la infromación del usuario";
+//         return res.status(500);
+//       })
+
+//   });
+// });
 
 ///////////////////////////
 ///// DELETE WISHLIST /////
 ///////////////////////////
-app.delete("/:username/deleteWishlist/:title", (req, res) => {
+app.delete("/:username/deleteWishlist/:wishlist", (req, res) => {
   // Store token
   let token = req.headers.authorization;
   token = token.replace("Bearer ", "");
@@ -593,21 +685,75 @@ app.post("/:username/:wishlist/createWish", jsonParser, (req, res) => {
       newItem.isReserved = true;
     }
 
-    UserList.createWish(user.username, wishlistTitle, newItem)
-      .then(addedItem => {
-        let data = {
-          username
-        };
-        let token = jwt.sign(data, "secret", {
-          expiresIn: 60 * 10
-        });
+    UserList.getUserByUsername(username)
+    .then(user => {
 
-        res.statusMessage =
-          "Wish agregado exitosamente a la wishlist " + wishlistTitle;
-        return res.status(200).json({ addedItem, token });
+        WishlistList.getAllByAuthor(user._id)
+        .then(wishlists => {    
+
+                WishlistList.getWishlistByTitle(wishlistTitle, user._id)
+                .then(wishlist => {
+                if (wishlists.length < 1) {
+                  res.statusMessage = "No hay wishlist";
+                  return res.status(403).send();
+                }
+                // Get items from wishlist
+                ItemList.getAllByWishlist(wishlist._id)
+                  .then(wishes => {
+                    // Validate if number of wishes is exceeded
+                    if (wishes.length >= 10) {
+                      res.statusMessage = "Número de wishes excedido";
+                      return res.status(409).send();
+                    }
+                    // Validate if title is repeated
+                    for (let i of wishes) {
+                      if (i.wishName == wishName) {
+                        res.statusMessage =
+                          "Título de wish no disponible, ya existe";
+                        return res.status(409).send();
+                      }
+                    }
+
+                    // Wish title available
+                    // Add wish to wishlist
+                    newItem.wishlist = user._id;
+                    // Create wish
+                    ItemList.create(newItem)
+                      .then(addedItem => {
+                        let data = {
+                          username
+                        };
+                        let token = jwt.sign(data, "secret", {
+                          expiresIn: 60 * 10
+                        });
+
+                        res.statusMessage =
+                          "Wish agregado exitosamente a la wishlist " + title;
+                        return res.status(201).json({ addedItem, token });
+                      })
+                      .catch(error => {
+                        res.statusMessage =
+                          "Hubo un error de conexión con la BD";
+                        return res.status(500).send();
+                      });
+                  })
+                  .catch(error => {
+                    res.statusMessage = "Hubo un error de conexión con la BD=";
+                    return res.status(500).send();
+                  });
+              })
+              .catch(error => {
+                res.statusMessage = "Hubo un error de conexión con la BD-";
+                return res.status(500).send();
+              });
+          })
+          .catch(error => {
+            res.statusMessage = "Hubo un error de conexión con la BD0";
+            return res.status(500).send();
+          });
       })
       .catch(error => {
-        res.statusMessage = "Hubo un error con la BD";
+        res.statusMessage = "Hubo un error de conexión con la BD,";
         return res.status(500).send();
       });
   });

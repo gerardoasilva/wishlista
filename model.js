@@ -200,64 +200,6 @@ let UserList = {
             throw Error(error);
         });
     }
-    // createWishlist : function(username, newWishlist ){
-    //     return User.findOneAndUpdate({username: username}, {$push:{wishlists: newWishlist}})
-    //         .then( wishlist => {
-    //             return wishlist;
-    //         })
-    //         .catch( error => {
-    //             throw Error(error);
-    //         });
-    // },
-    // deleteWishlist : function(username, title){
-    //     return User.findOneAndUpdate({username: username},{$pull: {wishlists:{title: title}}})
-    //         .then( result => {
-    //             return result;
-    //         })
-    //         .catch( error => {
-    //             throw Error(error);
-    //         });
-    // },
-
-    // updateWishlist : function(username, newWishlist ){
-    //     //return User.findOneAndUpdate({username: username}, {$set:{wishlists: newWishlist}})
-    //     return User.findOneAndUpdate({username: username }, {$set:{wishlists: {title: title, wishes: newWishlist}} } )            
-    //         .then( wishlist => {
-    //             return wishlist;
-    //         })
-    //         .catch( error => {
-    //             return error;
-    //         });
-    // },
-    //findOneAndUpdate({username: username}, {$set:{wishlists: {title:title}}})
-
-    // updateWishes : function(username, title, newWishlist ){
-    //     return User.findOneAndUpdate({username: username }, {$set:{wishlists: {title: title, wishes: newWishlist}} } )
-    //         .then( wishlist => {
-    //             return wishlist;
-    //         })
-    //         .catch( error => {
-    //             return error;
-    //         });
-
-    // },
-
-    // createWish : function(username, title, newItem ){
-        
-    //     return User.update(
-    //         {username: username},
-    //         {$push: {"wishlists.$[t].wishes": newItem}},
-    //         {upsert: true, arrayFilters: [ { 't.title': title } ]}
-
-    //         )
-    //     .then( wish => {
-    //         return wish;
-    //     })
-    //     .catch( error => {
-    //         throw Error(error);
-    //     });
-
-    // }
     
 };
 
@@ -298,11 +240,59 @@ let WishlistList = {
         .catch( error => {
             throw Error(error);
         });
+    },
+    getWishlistByTitle : function( title, author ){
+        return User.findOne( {title: title, author: author} )
+        .then( wishlist => {
+            if( wishlist ){
+                return wishlist;
+            }
+            throw new Error('Wishlista no encontrada');
+        })
+        .catch(error => {  
+            throw Error(error);
+        });
     }
 };
 
 let ItemList = {
-
+    getAll: function() {
+        Item.find()
+        .then( wishes => {
+            return wishes;
+        })
+        .catch( error => {
+            throw Error(error);
+        })
+    },
+    create: function(newItem){
+        return Item.create(newItem)
+        .then( addedItem => {
+            return addedItem;
+        })
+        .catch( error => {
+            throw Error(error);
+        });
+    },
+    getAllByWishlist : function(wishlist){
+        return Item.find({wishlist: wishlist})
+        .populate('wishlist')
+        .then( items => {
+            return items;
+        })
+        .catch( error => {
+            throw Error(error);
+        });
+    },
+    delete: function(wishlist, wishName) {
+        return Wishlist.findOneAndDelete({wishlist: wishlist, wishName: wishName})
+        .then(deletedItem => {
+            return deletedItem;
+        })
+        .catch( error => {
+            throw Error(error);
+        });
+    }
 };
 
 module.exports = {
