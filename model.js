@@ -179,11 +179,19 @@ let UserList = {
                 throw Error(error);
             })
     },
+    update : function( userN, newUser){
+        return User.findOneAndUpdate( {username: userN}, newUser )
+            .then( user => {
+                return user;
+            })
+            .catch(error => {
+                throw Error(error);
+            });
+    },
     getUserByUsername : function( username ){
         return User.findOne( {username: username} )
         .then( user => {
             if( user ){
-                console.log(user);
                 return user;
             }
             throw new Error('User not found');
@@ -191,7 +199,7 @@ let UserList = {
         .catch(error => {  
             throw Error(error);
         });
-    },
+    }
     // createWishlist : function(username, newWishlist ){
     //     return User.findOneAndUpdate({username: username}, {$push:{wishlists: newWishlist}})
     //         .then( wishlist => {
@@ -233,9 +241,7 @@ let UserList = {
     //         });
 
     // },
-/*
-    serModel.update( {_id: myid }, { $push: { "Uv.$[u].votes.$[v].critaire3": "df" } }, { upsert: true, arrayFilters: [ { 'u.code': "Info204" }, { "v.critaire3": {$exists:true} } ] } )
-*/
+
     // createWish : function(username, title, newItem ){
         
     //     return User.update(
@@ -265,7 +271,7 @@ let WishlistList = {
                 throw Error(error);
             });
     },
-    createWishlist: function(newWishlist){
+    create : function(newWishlist){
         return Wishlist.create( newWishlist )
         .then( addedWishlist => {
             return addedWishlist;
@@ -275,8 +281,8 @@ let WishlistList = {
         });
     },
     getAllByAuthor : function(author){
-        return Wishlist.find({username: author})
-        .populate("author")
+        return Wishlist.find({author: author})
+        .populate('author')
         .then( wishlists => {
             return wishlists;
         })
@@ -284,14 +290,14 @@ let WishlistList = {
             throw Error(error);
         });
     },
-    getIdByAuthor : function(author) {
-        return User.findOne( {username: author} )
-        .then( user => {
-            return user;
+    delete: function(author, title) {
+        return Wishlist.findOneAndDelete({author: author, title: title})
+        .then(deletedWishlist => {
+            return deletedWishlist;
         })
         .catch( error => {
             throw Error(error);
-        })
+        });
     }
 };
 
